@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pizzería El Romano</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --azul: #1B4F8A;
+      --celeste: #5BA4D4;
+      --crema: #FAF8F4;
+      --texto: #1a1a1a;
+      --gris: #6b7280;
+      --borde: #e8e8e8;
+      --verde: #25D366;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--crema);
+      color: var(--texto);
+      padding-bottom: 90px;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      height: 260px;
+      overflow: hidden;
+    }
+    .hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(27,79,138,0.2) 0%, rgba(27,79,138,0.8) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 24px 20px;
+    }
+    .tag {
+      display: inline-block;
+      background: var(--celeste);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      width: fit-content;
+    }
+    .hero-overlay h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .hero-overlay p {
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* CARRITO FLOTANTE */
+    .carrito-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: var(--azul);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(27,79,138,0.4);
+      z-index: 50;
+      transition: transform 0.15s;
+    }
+    .carrito-btn:active { transform: scale(0.95); }
+    .carrito-btn svg { width: 18px; height: 18px; fill: white; }
+    .carrito-count {
+      background: #e53e3e;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .carrito-btn.oculto { display: none; }
+
+    /* CONTENIDO */
+    .contenido { padding: 24px 16px 0; }
+
+    .seccion-titulo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--azul);
+      margin-bottom: 14px;
+    }
+
+    /* GRID PRODUCTOS */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.07);
+    }
+
+    .card-img-wrap {
+      position: relative;
+    }
+    .card-img-wrap img {
+      width: 100%;
+      height: 105px;
+      object-fit: cover;
+      display: block;
+    }
+    .btn-add {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--azul);
+      color: white;
+      border: none;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      transition: transform 0.15s, background 0.15s;
+    }
+    .btn-add:active { transform: scale(0.88); }
+    .btn-add.agregado { background: var(--verde); }
+
+    .card-body {
+      padding: 10px 11px 12px;
+    }
+    .card-body h3 {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 5px;
+    }
+    .precio {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--azul);
+    }
+    .precio-sub {
+      font-size: 11px;
+      color: var(--gris);
+      margin-top: 2px;
+    }
+
+    /* INFO BLOCK */
+    .info-block {
+      background: white;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 28px;
+      border: 1px solid var(--borde);
+    }
+    .info-row {
+      display: flex;
+      gap: 14px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--borde);
+      align-items: flex-start;
+    }
+    .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .info-row:first-child { padding-top: 0; }
+    .info-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--celeste);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      min-width: 72px;
+    }
+    .info-valor {
+      font-size: 13px;
+      color: var(--gris);
+      line-height: 1.5;
+    }
+
+    /* CARRITO DRAWER */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      display: none;
+    }
+    .overlay.visible { display: block; }
+
+    .drawer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 20px 20px 0 0;
+      z-index: 101;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+    .drawer.visible { transform: translateY(0); }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 20px 14px;
+      border-bottom: 1px solid var(--borde);
+    }
+    .drawer-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: var(--azul);
+    }
+    .btn-cerrar {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: var(--gris);
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .drawer-items {
+      padding: 14px 20px;
+    }
+
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--borde);
+    }
+    .item-row:last-child { border-bottom: none; }
+
+    .item-nombre {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .item-controles {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-cant {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid var(--celeste);
+      background: none;
+      color: var(--azul);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    .item-cant {
+      font-size: 15px;
+      font-weight: 700;
+      min-width: 20px;
+      text-align: center;
+    }
+    .item-precio {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--azul);
+      min-width: 60px;
+      text-align: right;
+    }
+
+    .total-row {
+      padding: 14px 20px;
+      border-top: 2px solid var(--borde);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .total-row span:last-child { color: var(--azul); font-size: 18px; }
+
+    /* FORM */
+    .form-section {
+      padding: 0 20px 20px;
+    }
+    .form-titulo {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gris);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .input-group {
+      margin-bottom: 12px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gris);
+      margin-bottom: 5px;
+    }
+    .input-group input {
+      width: 100%;
+      border: 1.5px solid var(--borde);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--texto);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-group input:focus { border-color: var(--celeste); }
+
+    .btn-enviar {
+      width: 100%;
+      background: var(--verde);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .btn-enviar svg { width: 20px; height: 20px; fill: white; }
+
+    .carrito-vacio {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gris);
+      font-size: 14px;
+    }
+
+    /* BTN WPP FIJO (cuando carrito vacío) */
+    .wpp-btn-fijo {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--verde);
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 17px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: 0 -2px 20px rgba(37,211,102,0.2);
+      z-index: 40;
+    }
+    .wpp-btn-fijo svg { width: 22px; height: 22px; fill: white; }
+    .wpp-btn-fijo.oculto { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <div class="hero">
+    <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&h=400&fit=crop&q=80" alt="Pizzería">
+    <div class="hero-overlay">
+      <span class="tag">Santa Clara del Mar</span>
+      <h1>Pizzería<br>El Romano</h1>
+      <p>Pedí por WhatsApp · Entrega a domicilio</p>
+    </div>
+  </div>
+
+  <!-- BOTON CARRITO -->
+  <button class="carrito-btn oculto" id="btnCarrito" onclick="abrirCarrito()">
+    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+    Tu pedido
+    <span class="carrito-count" id="carritoCount">0</span>
+  </button>
+
+  <!-- CONTENIDO -->
+  <div class="contenido">
+    <p class="seccion-titulo">Nuestras pizzas</p>
+    <div class="grid" id="gridProductos"></div>
+
+    <p class="seccion-titulo">Información</p>
+    <div class="info-block">
+      <div class="info-row">
+        <span class="info-label">Pedidos</span>
+        <span class="info-valor">Todos los días de 19hs a 23hs</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Entrega</span>
+        <span class="info-valor">Santa Clara del Mar y alrededores</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Pago</span>
+        <span class="info-valor">Transferencia · MercadoPago · Efectivo</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BTN WPP FIJO -->
+  <a class="wpp-btn-fijo" id="wppFijo" href="https://wa.me/5492231234567" target="_blank">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Consultar por WhatsApp
+  </a>
+
+  <!-- OVERLAY -->
+  <div class="overlay" id="overlay" onclick="cerrarCarrito()"></div>
+
+  <!-- DRAWER CARRITO -->
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <h2>Tu pedido</h2>
+      <button class="btn-cerrar" onclick="cerrarCarrito()">✕</button>
+    </div>
+
+    <div id="drawerContenido"></div>
+  </div>
+
+  <script>
+    const WPP_NUMBER = '5492231234567';
+
+    const productos = [
+      { id: 1, nombre: 'Muzzarella', precio: 4500, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=220&fit=crop&q=80' },
+      { id: 2, nombre: 'Napolitana', precio: 5000, img: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=220&fit=crop&q=80' },
+      { id: 3, nombre: 'Fugazzeta', precio: 5200, img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=220&fit=crop&q=80' },
+      { id: 4, nombre: 'Calabresa', precio: 5500, img: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=400&h=220&fit=crop&q=80' },
+      { id: 5, nombre: 'Cuatro quesos', precio: 6000, img: 'https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?w=400&h=220&fit=crop&q=80' },
+      { id: 6, nombre: 'Jamón y morrones', precio: 5800, img: 'https://images.unsplash.com/photo-1588315029754-2dd089d39a1a?w=400&h=220&fit=crop&q=80' },
+      { id: 7, nombre: 'Verdura', precio: 4800, img: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=220&fit=crop&q=80' },
+      { id: 8, nombre: 'Especial Romano', precio: 6500, img: 'https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=400&h=220&fit=crop&q=80' },
+    ];
+
+    let carrito = {};
+
+    function renderGrid() {
+      const grid = document.getElementById('gridProductos');
+      grid.innerHTML = productos.map(p => `
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="${p.img}" alt="${p.nombre}" loading="lazy">
+            <button class="btn-add" id="btn-${p.id}" onclick="agregar(${p.id})">+</button>
+          </div>
+          <div class="card-body">
+            <h3>${p.nombre}</h3>
+            <div class="precio">$${p.precio.toLocaleString('es-AR')}</div>
+            <div class="precio-sub">Pizza entera</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function agregar(id) {
+      carrito[id] = (carrito[id] || 0) + 1;
+      const btn = document.getElementById(`btn-${id}`);
+      btn.classList.add('agregado');
+      btn.textContent = '✓';
+      setTimeout(() => { btn.classList.remove('agregado'); btn.textContent = '+'; }, 800);
+      actualizarUI();
+    }
+
+    function cambiarCantidad(id, delta) {
+      carrito[id] = (carrito[id] || 0) + delta;
+      if (carrito[id] <= 0) delete carrito[id];
+      actualizarUI();
+      renderDrawer();
+    }
+
+    function actualizarUI() {
+      const total = Object.values(carrito).reduce((a, b) => a + b, 0);
+      const btnCarrito = document.getElementById('btnCarrito');
+      const wppFijo = document.getElementById('wppFijo');
+      document.getElementById('carritoCount').textContent = total;
+
+      if (total > 0) {
+        btnCarrito.classList.remove('oculto');
+        wppFijo.classList.add('oculto');
+      } else {
+        btnCarrito.classList.add('oculto');
+        wppFijo.classList.remove('oculto');
+      }
+    }
+
+    function renderDrawer() {
+      const contenido = document.getElementById('drawerContenido');
+      const ids = Object.keys(carrito).map(Number);
+
+      if (ids.length === 0) {
+        contenido.innerHTML = '<div class="carrito-vacio">Tu carrito está vacío</div>';
+        return;
+      }
+
+      const items = ids.map(id => {
+        const p = productos.find(x => x.id === id);
+        const cant = carrito[id];
+        return `
+          <div class="item-row">
+            <span class="item-nombre">${p.nombre}</span>
+            <div class="item-controles">
+              <button class="btn-cant" onclick="cambiarCantidad(${id}, -1)">−</button>
+              <span class="item-cant">${cant}</span>
+              <button class="btn-cant" onclick="cambiarCantidad(${id}, 1)">+</button>
+            </div>
+            <span class="item-precio">$${(p.precio * cant).toLocaleString('es-AR')}</span>
+          </div>
+        `;
+      }).join('');
+
+      const totalPrecio = ids.reduce((sum, id) => {
+        const p = productos.find(x => x.id === id);
+        return sum + p.precio * carrito[id];
+      }, 0);
+
+      contenido.innerHTML = `
+        <div class="drawer-items">${items}</div>
+        <div class="total-row">
+          <span>Total</span>
+          <span>$${totalPrecio.toLocaleString('es-AR')}</span>
+        </div>
+        <div class="form-section">
+          <p class="form-titulo">Datos para la entrega</p>
+          <div class="input-group">
+            <label>Tu nombre</label>
+            <input type="text" id="inputNombre" placeholder="Ej: María García">
+          </div>
+          <div class="input-group">
+            <label>Dirección</label>
+            <input type="text" id="inputDireccion" placeholder="Ej: Los Pinos 234, Santa Clara">
+          </div>
+          <button class="btn-enviar" onclick="enviarPedido()">
+            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Enviar pedido por WhatsApp
+          </button>
+        </div>
+      `;
+    }
+
+    function enviarPedido() {
+      const nombre = document.getElementById('inputNombre').value.trim();
+      const direccion = document.getElementById('inputDireccion').value.trim();
+
+      if (!nombre || !direccion) {
+        alert('Por favor completá tu nombre y dirección');
+        return;
+      }
+
+      const ids = Object.keys(carrito).map(Number);
+      const lineas = ids.map(id => {
+        const p = productos.find(x => x.id === id);
+        return `• ${carrito[id]}x ${p.nombre} — $${(p.precio * carrito[id]).toLocaleString('es-AR')}`;
+      });
+
+      const total = ids.reduce((sum, id) => {
+        const p = productos.find(x => x.id === id);
+        return sum + p.precio * carrito[id];
+      }, 0);
+
+      const mensaje = `Hola! Quiero hacer un pedido 🍕\n\n${lineas.join('\n')}\n\n*Total: $${total.toLocaleString('es-AR')}*\n\n📍 Dirección: ${direccion}\n👤 Nombre: ${nombre}`;
+
+      window.open(`https://wa.me/${WPP_NUMBER}?text=${encodeURIComponent(mensaje)}`, '_blank');
+    }
+
+    function abrirCarrito() {
+      renderDrawer();
+      document.getElementById('overlay').classList.add('visible');
+      document.getElementById('drawer').classList.add('visible');
+    }
+
+    function cerrarCarrito() {
+      document.getElementById('overlay').classList.remove('visible');
+      document.getElementById('drawer').classList.remove('visible');
+    }
+
+    renderGrid();
+  </script>
+</body>
+</html>
